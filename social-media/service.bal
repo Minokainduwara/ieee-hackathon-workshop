@@ -3,11 +3,16 @@ import ballerina/http;
 import ballerina/sql;
 import ballerinax/h2.driver as _;
 import ballerinax/java.jdbc;
+import ballerina/os;
 
 string dbPath = check file:getAbsolutePath("databases");
 string jdbcUrl = string `jdbc:h2:${dbPath}/SOCIAL_MEDIA`;
 
-configurable string sentimentClientUrl = "http://localhost:9000/api";
+configurable string serviceURL = os:getEnv("CHOREO_SENTIMENT_API_CONNECTION_SERVICEURL");
+configurable string consumerKey = os:getEnv("CHOREO_SENTIMENT_API_CONNECTION_CONSUMERKEY");
+configurable string consumerSecret = os:getEnv("CHOREO_SENTIMENT_API_CONNECTION_CONSUMERSECRET");
+configurable string tokenURL = os:getEnv("CHOREO_SENTIMENT_API_CONNECTION_TOKENURL");
+configurable string choreoApiKey = os:getEnv("CHOREO_SENTIMENT_API_CONNECTION_APIKEY");
 
 function initDatabase(sql:Client dbClient) returns error? {
     _ = check dbClient->execute(`CREATE TABLE IF NOT EXISTS POSTS (ID INT AUTO_INCREMENT PRIMARY KEY, USER_ID INT, DESCRIPTION VARCHAR(255), TAGS VARCHAR(255), CATEGORY VARCHAR(255))`);
@@ -20,7 +25,13 @@ service /api on new http:Listener(9090) {
 
     function init() returns error? {
         self.dbClient = check new jdbc:Client(jdbcUrl);
-        self.sentimentClient = check new(sentimentClientUrl);
+        self.sentimentClient = check new (serviceURL,
+          auth = {
+            tokenUrl: tokenURL,
+            clientId: consumerKey,
+            clientSecret: consumerSecret
+          }
+        );
         check initDatabase(self.dbClient);
     }
 
@@ -38,7 +49,7 @@ service /api on new http:Listener(9090) {
     }
 
     resource function post posts(NewPost newPost) returns PostCreated|http:BadRequest|error {
-        Sentiment sentiment = check self.sentimentClient->/sentiment.post({text: newPost.description});
+        Sentiment sentiment = check self.sentimentClient->/sentiment.post({text: newPost.description}, {"Choreo-API-Key": choreoApiKey});
         if sentiment.label != "pos" {
             return http:BAD_REQUEST;
         }
