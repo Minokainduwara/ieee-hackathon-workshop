@@ -1,5 +1,14 @@
 schemaVersion: 1.2
 
+endpoints:
+  - name: socialmedia
+    service:
+      basePath: /
+      port: 9090
+    type: REST
+    networkVisibility: Public
+    schemaFilePath: openapi.yaml
+
 dependencies:
     connectionReferences:
     - name: Sentiment API Connection
