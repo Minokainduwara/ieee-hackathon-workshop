@@ -3,7 +3,7 @@ schemaVersion: 1.2
 endpoints:
   - name: socialmedia
     service:
-      basePath: /
+      basePath: /api
       port: 9090
     type: REST
     networkVisibility: Public
