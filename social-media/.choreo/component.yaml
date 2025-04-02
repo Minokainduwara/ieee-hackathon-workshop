@@ -1,0 +1,6 @@
+schemaVersion: 1.2
+
+dependencies:
+    connectionReferences:
+    - name: Sentiment API Connection
+      resourceRef: service:/socialmedia/sentiment-api-service/v1/e8296/PUBLIC
