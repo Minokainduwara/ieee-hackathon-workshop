@@ -45,13 +45,13 @@ service /api on new http:Listener(9090) {
 
     resource function get posts/[int id]() returns Post|http:NotFound {
         Post|error post = self.dbClient->queryRow(`SELECT * FROM POSTS WHERE ID = ${id}`);
-        return post is Post ? post : http:NOT_FOUND;
+        return post is Post ? post : {body: {msg: string `Post not found for the given id: ${id}`}};
     }
 
     resource function post posts(NewPost newPost) returns PostCreated|http:BadRequest|error {
         Sentiment sentiment = check self.sentimentClient->/sentiment.post({text: newPost.description}, {"Choreo-API-Key": choreoApiKey});
         if sentiment.label != "pos" {
-            return http:BAD_REQUEST;
+            return <http:BadRequest>{body: {msg: "Post content failed sentiment analysis"}};
         }
 
         sql:ExecutionResult result = check self.dbClient->execute(`INSERT INTO POSTS (USER_ID, DESCRIPTION, TAGS, CATEGORY) VALUES (${newPost.userId}, ${newPost.description}, ${newPost.tags}, ${newPost.category})`);
@@ -66,6 +66,6 @@ service /api on new http:Listener(9090) {
 
     resource function get posts/[int id]/meta() returns PostWithMeta|http:NotFound {
         Post|error post = self.dbClient->queryRow(`SELECT * FROM POSTS WHERE ID = ${id}`);
-        return post is Post ? transformPost(post) : http:NOT_FOUND;
+        return post is Post ? transformPost(post) : {body: {msg: string `Post not found for the given id: ${id}`}};
     }
 }
