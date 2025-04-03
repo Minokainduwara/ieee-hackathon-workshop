@@ -5,7 +5,7 @@ import ballerinax/h2.driver as _;
 import ballerinax/java.jdbc;
 import ballerina/os;
 
-string dbPath = check file:getAbsolutePath("databases");
+configurable string dbPath = check file:getAbsolutePath("databases");
 string jdbcUrl = string `jdbc:h2:${dbPath}/SOCIAL_MEDIA`;
 
 configurable string serviceURL = os:getEnv("CHOREO_SENTIMENT_API_CONNECTION_SERVICEURL");
