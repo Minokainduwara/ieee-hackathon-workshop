@@ -1,0 +1,8 @@
+[package]
+org = "kavindiwickramasinghe"
+name = "social_media"
+version = "0.1.0"
+distribution = "2201.12.7"
+
+[build-options]
+observabilityIncluded = true
