@@ -19,8 +19,16 @@ table<Post> key(id) PostTable = table [
 
 service /api on new http:Listener(9090) {
 
-    //we pass category as a query parameter
-    resource function get posts(string category) returns Post[] {
+    //we pass category as a query parameter. it can be a string or null value
+    resource function get posts(string? category) returns boolean|Post[]|table<Post> key<int> {
+        //check category is a string value
+        if category is string {
+            //filter posts by category
+            table<Post> key<int> filteredPosts = PostTable.filter(function(Post post) returns boolean {
+                return post.category == category;
+            });
+            return filteredPosts;
+        }
         return PostTable.toArray();
         
     }
