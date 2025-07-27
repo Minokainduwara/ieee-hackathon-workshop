@@ -38,6 +38,18 @@ service /api on new http:Listener(9090) {
         return PostTable.hasKey(id)? PostTable.get(id) : http:NOT_FOUND;
     }
 
+    resource function post posts/api(NewPost newPost) returns PostCreated{
+        int id = PostTable.nextKey();
+        Post post = {
+            id,
+            ...newPost
+        };
+        PostTable.add(post);
+        return {
+            body: post
+        };
+    }
+
 
 
 }
