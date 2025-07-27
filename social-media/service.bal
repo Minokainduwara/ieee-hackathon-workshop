@@ -33,7 +33,7 @@ service /api on new http:Listener(9090) {
         
     }
 
-    resource function get Posts/[int id]() returns Post|http:NotFound{
+    resource function get posts/[int id]() returns Post|http:NotFound{
         //check if the post with the given id exists
         return PostTable.hasKey(id)? PostTable.get(id) : http:NOT_FOUND;
     }

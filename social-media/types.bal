@@ -5,3 +5,11 @@ type Post readonly & record  {|
     string tags;
     string category;
 |};
+
+
+type NewPost record {|
+    int userId;
+    string description;
+    string tags;
+    string category;
+|};
