@@ -60,6 +60,16 @@ service /api on new http:Listener(9090) {
         
     }
 
+    resource function get post/[int id]/meta() returns PostWithMeta|http:NotFound {
+        //check if the post with the given id exists
+        if PostTable.hasKey(id) {
+            Post post = PostTable.get(id);
+            return transformPost(post);
+        }
+        return http:NOT_FOUND;
+        
+    }
+
 
 
 }
