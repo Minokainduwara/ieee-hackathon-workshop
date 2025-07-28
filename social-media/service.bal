@@ -50,6 +50,16 @@ service /api on new http:Listener(9090) {
         };
     }
 
+    resource function delete posts/[int id]() returns  http:NoContent|http:NotFound {
+        //check if the post with the given id exists
+        if PostTable.hasKey(id) {
+            _ = PostTable.remove(id);
+            return http:NO_CONTENT;
+        }
+        return http:NOT_FOUND;
+        
+    }
+
 
 
 }
