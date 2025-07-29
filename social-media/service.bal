@@ -44,14 +44,20 @@ service /api on new http:Listener(9090) {
         return PostTable.hasKey(id)? PostTable.get(id) : http:NOT_FOUND;
     }
 
-    resource function post posts(NewPost newPost) returns PostCreated{
+    resource function post posts(NewPost newPost) returns PostCreated|http:BadRequest|error{
+
+        Sentiment sentiment = check self.sentimentClient->/sentiment.post({text: newPost.description});
+
+        if sentiment.label == "neg"{
+            return http:BAD_REQUEST;
+        }
         int id = PostTable.nextKey();
         Post post = {
             id,
             ...newPost
         };
         PostTable.add(post);
-        return {
+        return <PostCreated>{
             body: post
         };
     }
