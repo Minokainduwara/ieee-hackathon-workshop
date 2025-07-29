@@ -19,6 +19,12 @@ table<Post> key(id) PostTable = table [
 
 service /api on new http:Listener(9090) {
 
+    //Define sentiment api
+    http:Client sentimentClient;
+    function init() returns error? {
+        self.sentimentClient = check new("http://localhost:9000/api");
+    }
+
     //we pass category as a query parameter. it can be a string or null value
     resource function get posts(string? category) returns boolean|Post[]|table<Post> key<int> {
         //check category is a string value
