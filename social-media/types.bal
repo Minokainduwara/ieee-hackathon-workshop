@@ -32,6 +32,18 @@ type PostWithMeta record {|
     Meta meta;
 |};
 
+
+type Probability record {|
+    decimal neg;
+    decimal neutral;
+    decimal pos;
+|};
+
+type Sentiment record {|
+    string label;
+    Probability probability;
+|};
+
 function transformPost(Post post) returns PostWithMeta => {
     id: post.id,
     userId: post.userId,
