@@ -1,10 +1,16 @@
 import ballerina/http;
+import ballerina/sql;
 
 type Post readonly & record {|
+    @sql:Column {name: "id"}
     readonly int id;
+    @sql:Column {name: "userId"}
     int userId;
+    @sql:Column {name: "description"}
     string description;
+    @sql:Column {name: "tags"}
     string tags;
+    @sql:Column {name: "category"}
     string category;
 |};
 

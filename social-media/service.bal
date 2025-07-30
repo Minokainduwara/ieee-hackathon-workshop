@@ -19,6 +19,12 @@ table<Post> key(id) PostTable = table [
     }
 ];
 
+function initDatabase(sql:Client sqlClient) returns error? {
+    _ = check sqlClient->execute(`CREATE TABLE IF NOT EXISTS posts (id INT PRIMARY KEY, userId INT, description VARCHAR(255), tags VARCHAR(255), category VARCHAR(50))`);
+}
+
+
+
 service /api on new http:Listener(9090) {
 
     //Define sentiment api
@@ -28,25 +34,22 @@ service /api on new http:Listener(9090) {
     function init() returns error? {
         self.sentimentClient = check new ("http://localhost:9090/sentiment");
         self.dbClient = check new jdbc:Client("jdbc:h2:./databases/SOCIAL_MEDIA");
+        check initDatabase(self.dbClient);
     }
 
     //we pass category as a query parameter. it can be a string or null value
-    resource function get posts(string? category) returns boolean|Post[]|table<Post> key<int> {
+      resource function get posts(string? category) returns boolean|Post[]|table<Post> key<int>|sql:Error {
+        stream<Post, sql:Error?> postStream = self.dbClient->query(`SELECT * FROM posts`);
+        table<Post> postTable = check from Post post in postStream select post;
+        return postTable.toArray();
         //check category is a string value
-        if category is string {
-            //filter posts by category
-            table<Post> key<int> filteredPosts = PostTable.filter(function(Post post) returns boolean {
-                return post.category == category;
-            });
-            return filteredPosts;
-        }
-        return PostTable.toArray();
 
     }
 
-    resource function get posts/[int id]() returns Post|http:NotFound {
+    resource function get posts/[int id]() returns Post|http:NotFound|sql:Error {
+        Post post = check self.dbClient->queryRow(`SELECT * FROM posts WHERE id = ?`, id);
         //check if the post with the given id exists
-        return PostTable.hasKey(id) ? PostTable.get(id) : http:NOT_FOUND;
+        return post is Post? post : http:NOT_FOUND;
     }
 
     resource function post posts(NewPost newPost) returns PostCreated|http:BadRequest|error {
