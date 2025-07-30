@@ -6,3 +6,8 @@ distribution = "2201.12.7"
 
 [build-options]
 observabilityIncluded = true
+
+[[dependency]]
+org = "ballerinax"
+name = "java.jdbc"
+version = "1.10.0"
